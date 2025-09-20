@@ -1,7 +1,7 @@
 // Token y base
 const API_KEY = "patT7TBAAgZsmibHM.e5a4d8f4ed88a551fe7cab0b63d524f3e1382687766b2dc6daf62c523fb551be";
 const BASE_ID = "appjSiHXlFMyEwB5b";
-const TABLE_NAME = "prototypeEecomerce";
+const TABLE_NAME = "Products";
 
 const contenedor = document.getElementById("productos-container");
 
