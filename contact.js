@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
        
         setTimeout(() => {
-          window.location.href = "index.html";
+          window.location.href = "/Productos/productos.html";
         }, 2000);
 
       }, (err) => {
