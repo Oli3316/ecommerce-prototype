@@ -1,3 +1,85 @@
+const links = document.querySelectorAll(".nav-link");
+const sections = document.querySelectorAll("main section");
+
+links.forEach(link => {
+  link.addEventListener("click", e => {
+    e.preventDefault();
+    const targetId = link.getAttribute("href").substring(1);
+
+    // ocultar todas
+    sections.forEach(sec => sec.classList.remove("active"));
+
+    // mostrar la elegida
+    document.getElementById(targetId).classList.add("active");
+
+    // actualizar link activo
+    links.forEach(l => l.classList.remove("active"));
+    link.classList.add("active");
+  });
+});
+
+(function(){
+  emailjs.init("SiJdhKM8cxQrVxJ7H"); 
+})();
+
+document.addEventListener("DOMContentLoaded", function() {
+  const form = document.querySelector("form");
+  
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    emailjs.sendForm('service_1102u5y', 'template_7qigike', this)
+      .then(() => {
+        form.reset();
+        showToast("✅ Mensaje enviado correctamente");
+
+       
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 2000);
+
+      }, (err) => {
+        console.error("Error al enviar el mensaje:", err);
+        showToast("❌ Error al enviar el mensaje", true);
+      });
+  });
+});
+
+
+function showToast(message, isError = false) {
+  const toast = document.createElement("div");
+  toast.innerHTML = message;
+  
+  toast.style.position = "fixed";
+  toast.style.top = "20px";
+  toast.style.right = "20px";
+  toast.style.backgroundColor = "#ffffff"; 
+  toast.style.color = "#000000";           
+  toast.style.padding = "12px 20px";
+  toast.style.borderRadius = "8px";
+  toast.style.boxShadow = "0 4px 6px rgba(0,0,0,0.2)";
+  toast.style.zIndex = "9999";
+  toast.style.fontWeight = "bold";
+  toast.style.fontSize = "14px";
+  toast.style.opacity = "0";
+  toast.style.transition = "opacity 0.3s ease";
+
+  document.body.appendChild(toast);
+
+
+  requestAnimationFrame(() => {
+    toast.style.opacity = "1";
+  });
+
+ 
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    setTimeout(() => {
+      document.body.removeChild(toast);
+    }, 300);
+  }, 2000);
+}
+
 // Token y base
 const API_KEY = "patT7TBAAgZsmibHM.e5a4d8f4ed88a551fe7cab0b63d524f3e1382687766b2dc6daf62c523fb551be";
 const BASE_ID = "appjSiHXlFMyEwB5b";
