@@ -136,6 +136,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const productos = await obtenerProductos();
     productosGlobal = productos;
     renderProductos(productosGlobal);
+    renderSlider(productosGlobal);
     activarBuscador();
     activarCategorias();
   } catch (error) {
@@ -213,4 +214,79 @@ function activarModalProductos() {
       modal.show();
     });
   });
+}
+
+
+
+const sliderContainer = document.getElementById("slider-container");
+
+
+function renderSlider(productos) {
+  sliderContainer.querySelectorAll('.card').forEach(c => c.remove()); 
+
+  const destacados = productos.filter(p => p.fields.Destacados === true);
+
+  destacados.forEach((producto, i) => {
+    const imagenURL = obtenerURLImagen(producto.fields.Imagen);
+
+    const card = document.createElement("div");
+    card.className = "card shadow-sm h-100 product-card"; 
+    if (i === 0) card.classList.add("active");
+    else if (i === 1) card.classList.add("next");
+    else if (i === destacados.length - 1) card.classList.add("prev");
+    else card.classList.add("inactive");
+
+    card.setAttribute("data-nombre", producto.fields.Nombre);
+    card.setAttribute("data-descripcion", producto.fields.Descripcion || "");
+    card.setAttribute("data-precio", producto.fields.Precio);
+    card.setAttribute("data-imagen", imagenURL);
+
+    card.innerHTML = `
+      <img src="${imagenURL}" class="card-img-top" alt="${producto.fields.Nombre}">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">${producto.fields.Nombre}</h5>
+        <p class="card-text">${producto.fields.Descripcion || ""}</p>
+        <div class="mt-auto">
+          <p class="fw-bold">$${producto.fields.Precio}</p>
+          <a href="#" class="btn btn-primary w-100">Agregar al carrito</a>
+        </div>
+      </div>
+    `;
+
+    sliderContainer.insertBefore(card, sliderContainer.querySelector(".controls"));
+  });
+
+  activarModalProductos(); 
+  initSlider();           
+}
+
+
+function initSlider() {
+  const cards = sliderContainer.querySelectorAll('.card');
+  let current = 0;
+
+  function updateCards() {
+    cards.forEach((card, i) => {
+      card.classList.remove('active', 'prev', 'next', 'inactive');
+      if (i === current) card.classList.add('active');
+      else if (i === (current - 1 + cards.length) % cards.length) card.classList.add('prev');
+      else if (i === (current + 1) % cards.length) card.classList.add('next');
+      else card.classList.add('inactive');
+    });
+  }
+
+  const nextBtn = document.getElementById('nextBtn');
+  const prevBtn = document.getElementById('prevBtn');
+
+  nextBtn.addEventListener('click', () => {
+    current = (current + 1) % cards.length;
+    updateCards();
+  });
+
+  prevBtn.addEventListener('click', () => {
+    current = (current - 1 + cards.length) % cards.length;
+    updateCards();
+  });
+
+  updateCards();
 }
