@@ -11,11 +11,6 @@ section.active {
     display: block;
 }
 
-.card:hover{
-    transform: translateY(-3px);
-    transition: transform 0.3s;
-}
-
 .categories .nav-link {
     margin: 0 15px;
     font-weight: 500;
@@ -33,4 +28,41 @@ section.active {
     color: rgb(17, 38, 77) ;
     border-bottom: 2px solid rgb(31, 60, 112);
     background-color: transparent ;
+}
+
+#productoModal img {
+  max-height: 560px;  
+  width: auto;        
+  display: block;
+  margin: 0 auto;     
+}
+
+.modal-dialog {
+  max-width: none;        
+  width: auto;           
+  min-width: 450px;       
+  display: flex;
+  justify-content: center; 
+  margin: 1.75rem auto;    
+}
+.modal-content {
+  display: inline-block;
+  width: auto; 
+}
+
+.modal-body {
+  padding: 0; 
+}
+
+.card {
+  margin: 0;
+}
+
+.card-img-top {
+  width: 100%; 
+  display: block;
+  border-radius: 0; }
+
+.product-card {
+  cursor: pointer;
 }

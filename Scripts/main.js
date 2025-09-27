@@ -1,4 +1,4 @@
-const links = document.querySelectorAll(".nav-link");
+const links = document.querySelectorAll("nav.navbar .nav-link");
 const sections = document.querySelectorAll("main section");
 
 links.forEach(link => {
@@ -6,13 +6,9 @@ links.forEach(link => {
     e.preventDefault();
     const targetId = link.getAttribute("href").substring(1);
 
-    // ocultar todas
     sections.forEach(sec => sec.classList.remove("active"));
-
-    // mostrar la elegida
     document.getElementById(targetId).classList.add("active");
 
-    // actualizar link activo
     links.forEach(l => l.classList.remove("active"));
     link.classList.add("active");
   });
@@ -33,7 +29,6 @@ document.addEventListener("DOMContentLoaded", function() {
         form.reset();
         showToast("✅ Mensaje enviado correctamente");
 
-       
         setTimeout(() => {
           window.location.href = "index.html";
         }, 2000);
@@ -44,7 +39,6 @@ document.addEventListener("DOMContentLoaded", function() {
       });
   });
 });
-
 
 function showToast(message, isError = false) {
   const toast = document.createElement("div");
@@ -66,12 +60,10 @@ function showToast(message, isError = false) {
 
   document.body.appendChild(toast);
 
-
   requestAnimationFrame(() => {
     toast.style.opacity = "1";
   });
 
- 
   setTimeout(() => {
     toast.style.opacity = "0";
     setTimeout(() => {
@@ -80,82 +72,145 @@ function showToast(message, isError = false) {
   }, 2000);
 }
 
-// Token y base
 const API_KEY = "patT7TBAAgZsmibHM.e5a4d8f4ed88a551fe7cab0b63d524f3e1382687766b2dc6daf62c523fb551be";
 const BASE_ID = "appjSiHXlFMyEwB5b";
 const TABLE_NAME = "Products";
 
 const contenedor = document.getElementById("productos-container");
+let productosGlobal = [];
 
-// Función para obtener URL de imagen
 function obtenerURLImagen(imagen) {
-  if (typeof imagen === "string") return imagen.trim();
+  if (typeof imagen === "string" && imagen.startsWith("http")) return imagen.trim();
   if (Array.isArray(imagen) && imagen.length > 0 && imagen[0].url) return imagen[0].url;
-  return ""; // Si no hay imagen, devolvemos vacío
+  return "https://via.placeholder.com/300x200";
 }
 
-// Función para obtener productos desde Airtable
 async function obtenerProductos() {
   const url = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}`;
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${API_KEY}` }
-  });
+  const response = await fetch(url, { headers: { Authorization: `Bearer ${API_KEY}` } });
   const data = await response.json();
+  if (!data.records) throw new Error(`No se encontraron records. Revisa BASE_ID o TABLE_NAME.`);
   return data.records;
 }
 
-// Función para renderizar productos en el DOM
-function renderProductos(productos) {
-  contenedor.innerHTML = ""; // Limpiar contenedor
+const categoriaMap = {
+  calzas: "Pantalones",
+  joggins: "Pantalones",
+  shorts: "Pantalones",
+  remeras: "Remeras",
+  musculosas: "Remeras",
+  buzos: "Abrigos",
+  accesorios: "Accesorios",
+  zapatillas: "Calzado"
+};
 
+function renderProductos(productos) {
+  contenedor.innerHTML = "";
   productos.forEach(producto => {
-    const imagenURL = obtenerURLImagen(producto.fields.Image) || "https://via.placeholder.com/300x200";
+    const imagenURL = obtenerURLImagen(producto.fields.Imagen);
 
     const col = document.createElement("div");
     col.className = "col-12 col-sm-6 col-md-4 col-lg-3";
 
     col.innerHTML = `
-      <div class="card shadow-sm h-100">
-        <img src="${imagenURL}" class="card-img-top" alt="${producto.fields.Name}">
+      <div class="card shadow-sm h-100 product-card" data-nombre="${producto.fields.Nombre}" data-descripcion="${producto.fields.Descripcion || ''}" data-precio="${producto.fields.Precio}" data-imagen="${imagenURL}">
+        <img src="${imagenURL}" class="card-img-top" alt="${producto.fields.Nombre}">
         <div class="card-body d-flex flex-column">
-          <h5 class="card-title">${producto.fields.Name}</h5>
-          <p class="card-text">${producto.fields.Description || ""}</p>
+          <h5 class="card-title">${producto.fields.Nombre}</h5>
+          <p class="card-text">${producto.fields.Descripcion || ""}</p>
           <div class="mt-auto">
-            <p class="fw-bold">$${producto.fields.Price}</p>
+            <p class="fw-bold">$${producto.fields.Precio}</p>
             <a href="#" class="btn btn-primary w-100">Agregar al carrito</a>
           </div>
         </div>
       </div>
     `;
-
     contenedor.appendChild(col);
   });
+
+  activarModalProductos();
 }
 
-// Ejecutar al cargar el DOM
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const productos = await obtenerProductos();
-    renderProductos(productos);
+    productosGlobal = productos;
+    renderProductos(productosGlobal);
+    activarBuscador();
+    activarCategorias();
   } catch (error) {
-    console.error("Error al obtener productos desde Airtable:", error);
+    console.error(error);
   }
 });
 
-async function obtenerProductos() {
-  const url = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}`;
-  console.log("📡 Fetching desde:", url); // LOG
+function activarBuscador() {
+  const buscador = document.getElementById("buscador");
+  buscador.addEventListener("input", e => {
+    const texto = e.target.value.toLowerCase().trim();
 
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${API_KEY}` }
+    let filtrados = productosGlobal.filter(p => (p.fields.Nombre || "").toLowerCase().includes(texto));
+
+    const categoriaActiva = document.querySelector(".categories .nav-link.active")?.getAttribute("data-categoria");
+    if (categoriaActiva && categoriaActiva !== "Todos") {
+      filtrados = filtrados.filter(p => {
+        const cat = categoriaMap[(p.fields.Categoria || "").toLowerCase()] || p.fields.Categoria;
+        return cat === categoriaActiva;
+      });
+    }
+
+    renderProductos(filtrados);
   });
+}
 
-  const data = await response.json();
-  console.log("🔎 Respuesta de Airtable:", data); // LOG
+function activarCategorias() {
+  const categoriaLinks = document.querySelectorAll(".categories .nav-link");
 
-  if (!data.records) {
-    throw new Error(`No se encontraron records. Revisa BASE_ID (${BASE_ID}) o TABLE_NAME (${TABLE_NAME}).`);
-  }
+  categoriaLinks.forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault();
 
-  return data.records;
+      const categoriaActiva = link.getAttribute("data-categoria");
+
+      let filtrados = productosGlobal.filter(p => {
+        const cat = categoriaMap[(p.fields.Categoria || "").toLowerCase()] || p.fields.Categoria;
+        return categoriaActiva === "Todos" || cat === categoriaActiva;
+      });
+
+      const textoBuscador = document.getElementById("buscador").value.toLowerCase().trim();
+      if (textoBuscador) {
+        filtrados = filtrados.filter(p => (p.fields.Nombre || "").toLowerCase().includes(textoBuscador));
+      }
+
+      renderProductos(filtrados);
+
+      categoriaLinks.forEach(l => l.classList.remove("active"));
+      link.classList.add("active");
+    });
+  });
+}
+
+function activarModalProductos() {
+  const productCards = document.querySelectorAll(".product-card");
+  const modal = new bootstrap.Modal(document.getElementById("productoModal"));
+  const modalTitle = document.getElementById("productoModalLabel");
+  const modalImagen = document.getElementById("modalImagen");
+  const modalDescripcion = document.getElementById("modalDescripcion");
+  const modalPrecio = document.getElementById("modalPrecio");
+
+  productCards.forEach(card => {
+    card.addEventListener("click", e => {
+      const nombre = card.getAttribute("data-nombre");
+      const descripcion = card.getAttribute("data-descripcion");
+      const precio = card.getAttribute("data-precio");
+      const imagen = card.getAttribute("data-imagen");
+
+      modalTitle.textContent = nombre;
+      modalDescripcion.textContent = descripcion;
+      modalPrecio.textContent = `$${precio}`;
+      modalImagen.src = imagen;
+      modalImagen.alt = nombre;
+
+      modal.show();
+    });
+  });
 }
