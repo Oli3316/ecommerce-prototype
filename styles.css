@@ -1,12 +1,8 @@
 main {
-    padding-top: 80px;
-    padding-bottom: 80px;
+  padding-top: 80px;
+  padding-bottom: 80px;
 }
 
 section {
-    display: none;
-}
-
-section.active {
-    display: block;
+  display: block; /* ahora siempre se muestra */
 }
