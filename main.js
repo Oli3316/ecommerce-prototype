@@ -184,6 +184,12 @@ async function obtenerProductos() {
   return data.records;
 }
 
+// Función para formatear precios con punto de miles
+function formatearPrecio(num) {
+  if (!num) return "$0";
+  return "$" + Number(num).toLocaleString("de-DE");
+}
+
 // Función para renderizar productos en el DOM
 function renderProductos(productos, contenedor) {
   contenedor.innerHTML = ""; // Limpiar contenedor
@@ -201,20 +207,19 @@ function renderProductos(productos, contenedor) {
           <h5 class="card-title">${producto.fields.Nombre}</h5>
           <p class="card-text">${producto.fields.Descripcion || ""}</p>
           <div class="mt-auto">
-            <p class="fw-bold">$${producto.fields.Precio}</p>
+            <p class="fw-bold">${formatearPrecio(producto.fields.Precio)}</p>
             <a href="#" class="btn btn-primary w-100 btn-detalle">Ver detalle</a>
           </div>
         </div>
       </div>
     `;
 
-    // Boton Detalle
-     const btnDetalle = col.querySelector(".btn-detalle");
-      btnDetalle.addEventListener("click", (e) => {
+    // Botón Detalle
+    const btnDetalle = col.querySelector(".btn-detalle");
+    btnDetalle.addEventListener("click", (e) => {
       e.preventDefault();
       mostrarDetalleProducto(producto);
-      });
-
+    });
 
     contenedor.appendChild(col);
   });
@@ -317,6 +322,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 //   });
 // });
 
+
+
 // FUNCION MODAL (DETALLE PRODUCTO)
 async function mostrarDetalleProducto(producto) {
   // Cargar modal si no está
@@ -330,7 +337,7 @@ async function mostrarDetalleProducto(producto) {
   // Llenar datos del producto
   document.getElementById("detalleNombre").textContent = producto.fields.Nombre;
   document.getElementById("detalleDescripcion").textContent = producto.fields.Descripcion || "";
-  document.getElementById("detallePrecio").textContent = `$${producto.fields.Precio}`;
+  document.getElementById("detallePrecio").textContent = formatearPrecio(producto.fields.Precio);
   document.getElementById("detalleImagen").src = obtenerURLImagen(producto.fields.Imagen) || "https://via.placeholder.com/300x200";
 
   // Botón agregar al carrito
