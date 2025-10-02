@@ -7,73 +7,110 @@ section {
   display: block;
 }
 
-/* PRODUCTOS */
-.categories .nav-link {
-  margin: 0 15px;
-  font-weight: 500;
-  color: rgb(133, 168, 232);
-  border-bottom: 2px solid transparent;
-  transition: all 0.3s ease;
-}
-
-.categories .nav-link:hover {
-  color: rgb(17, 38, 77);
-  border-bottom: 2px solid rgb(31, 60, 112);
-}
-
-.categories .nav-link.active {
-  color: rgb(17, 38, 77);
-  border-bottom: 2px solid rgb(31, 60, 112);
-  background-color: transparent;
-}
-
-#carouselCards {
+/* Contenedor general */
+#carouselDestacados {
   position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 400px;
-  overflow: visible;
+  overflow: hidden;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 10px 0 5px 0; /* 20px arriba, 40px abajo */
 }
 
-#carouselCards .card {
+/* Inner carousel */
+#carouselDestacados .carousel-inner {
+  height: auto;
+  min-height: 550px; /* ajusta según el tamaño de la card */
+}
+
+
+/* Cada item */
+#carouselDestacados .carousel-item {
   position: absolute;
-  width: 18rem;
+  top: 0;
+  left: 50%;
+  transform-origin: center center;
   transition: transform 0.5s ease, opacity 0.5s ease;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  width: 300px; /* antes 300px, ahora más grande */
 }
 
-#carouselCards .card.inactive {
-  opacity: 0;
-  transform: scale(0.7) translateX(0);
-  z-index: 0;
+
+/* Producto central */
+#carouselDestacados .carousel-item.active {
+  z-index: 3;
 }
 
-#carouselCards .card.prev {
-  transform: translateX(-150%) scale(0.85);
-  opacity: 0.5;
-  z-index: 1;
-}
-
-#carouselCards .card.next {
-  transform: translateX(150%) scale(0.85);
-  opacity: 0.5;
-  z-index: 1;
-}
-
-#carouselCards .card.active {
-  transform: translateX(0) scale(1);
-  opacity: 1;
+/* Producto previo y siguiente */
+#carouselDestacados .carousel-item.prev,
+#carouselDestacados .carousel-item.next {
   z-index: 2;
 }
 
-/* Controles debajo del carousel */
-#carouselCards .controls {
-  position: absolute;
-  bottom: -50px;
-  width: 100%;
+/* Indicadores */
+#carouselDestacados .carousel-indicators {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  margin-top: 50px; /* aumenta la separación desde la carta */
+  gap: 10px;
+  position: relative; 
 }
 
+#carouselDestacados .carousel-indicators button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+  background-color: #726d6d;
+  transition: background-color 0.3s;
+}
+
+#carouselDestacados .carousel-indicators button.active {
+  background-color: #131212;
+}
+
+/* Botones prev/next */
+#carouselDestacados .carousel-prev,
+#carouselDestacados .carousel-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(255,255,255,0.8);
+  border: none;
+  font-size: 24px;
+  padding: 10px 15px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 5;
+}
+
+#carouselDestacados .carousel-prev { left: 100px; }
+#carouselDestacados .carousel-next { right: 100px; }
+
+/* Card */
+#carouselDestacados .card {
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  width: 100%;
+  height: 1000px; /* antes 200px, ahora más alto */
+}
+
+/* Imagen */
+#carouselDestacados .card-img-top {
+  width: 100%;
+  height: 370px; /* ajusta según el nuevo tamaño */
+  object-fit: cover;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Card body */
+#carouselDestacados .card-body {
+  padding: 15px;
+  text-align: center;
+}
+
+#inicio .container.text-center.my-5 {
+  margin-top: 5px; /* reduce la distancia desde el hero */
+  margin-bottom: 40px; /* mantiene separación inferior */
+}

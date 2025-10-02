@@ -36,8 +36,9 @@ async function loadPage(page) {
     if (sec) sec.classList.add("active");
 
     // Renderizar productos si ya están cargados
-    if (window.productosGlobales && document.getElementById("productos-container")) {
-      renderProductos(window.productosGlobales, document.getElementById("productos-container"));
+    const contenedor = document.getElementById("productos-container");
+    if (window.productosGlobales && contenedor) {
+      renderProductos(window.productosGlobales, contenedor);
     }
 
   } catch (err) {
@@ -48,6 +49,7 @@ async function loadPage(page) {
 
 // --- Inicializar funcionalidades de la página ---
 function initPageFeatures() {
+  // --- Productos y filtros ---
   const contenedor = document.getElementById("productos-container");
   const selectCategoria = document.getElementById("filtroCategoria");
 
@@ -62,7 +64,13 @@ function initPageFeatures() {
     });
   }
 
-  // Formulario de contacto
+  // --- Carrusel Destacados ---
+  const carouselContainer = document.querySelector("#carouselDestacados .carousel-inner");
+  if (carouselContainer && window.productosGlobales) {
+    renderDestacados();
+  }
+
+  // --- Formulario de contacto ---
   const form = document.querySelector("form");
   if (form) {
     form.addEventListener("submit", function(e) {
@@ -184,16 +192,120 @@ async function mostrarDetalleProducto(producto) {
   new bootstrap.Modal(document.getElementById("modalDetalleProducto")).show();
 }
 
-// --- Cargar productos al inicio ---
+// --- Carrusel Coverflow 3D ---
+let indexCoverflow = 0;
+let isDragging = false;
+let startX = 0;
+
+function renderDestacados() {
+  if (!window.productosGlobales) return;
+
+  const destacados = window.productosGlobales.filter(p => p.fields.Destacado === true);
+  const carouselInner = document.querySelector("#carouselDestacados .carousel-inner");
+  const indicators = document.querySelector("#carouselDestacados .carousel-indicators");
+  if (!carouselInner) return;
+
+  carouselInner.innerHTML = "";
+  indicators.innerHTML = "";
+
+  destacados.forEach((producto, i) => {
+    const imagenURL = obtenerURLImagen(producto.fields.Imagen) || "https://via.placeholder.com/300x200";
+
+    const item = document.createElement("div");
+    item.className = `carousel-item${i === 0 ? " active" : ""}`;
+    item.innerHTML = `
+      <div class="card shadow-sm">
+        <img src="${imagenURL}" class="card-img-top" alt="${producto.fields.Nombre}">
+        <div class="card-body text-center">
+          <h5 class="card-title">${producto.fields.Nombre}</h5>
+          <p class="card-text">${producto.fields.Descripcion || ""}</p>
+          <p class="fw-bold">$${producto.fields.Precio}</p>
+          <a href="#" class="btn btn-primary btn-detalle">Ver detalle</a>
+        </div>
+      </div>
+    `;
+    item.querySelector(".btn-detalle").addEventListener("click", e => {
+      e.preventDefault();
+      mostrarDetalleProducto(producto);
+    });
+    carouselInner.appendChild(item);
+
+    // Indicadores
+    const btn = document.createElement("button");
+    btn.addEventListener("click", () => {
+      indexCoverflow = i;
+      updateCoverflow();
+    });
+    indicators.appendChild(btn);
+  });
+
+  // Prev/Next botones
+  document.querySelector("#carouselDestacados .carousel-prev").onclick = () => {
+    indexCoverflow = (indexCoverflow - 1 + destacados.length) % destacados.length;
+    updateCoverflow();
+  };
+  document.querySelector("#carouselDestacados .carousel-next").onclick = () => {
+    indexCoverflow = (indexCoverflow + 1) % destacados.length;
+    updateCoverflow();
+  };
+
+  // Drag/Swipe
+  carouselInner.addEventListener("mousedown", e => { isDragging = true; startX = e.clientX; });
+  carouselInner.addEventListener("mouseup", e => { handleDragEnd(e.clientX - startX, destacados.length); });
+  carouselInner.addEventListener("mouseleave", e => { if(isDragging) handleDragEnd(e.clientX - startX, destacados.length); });
+  carouselInner.addEventListener("touchstart", e => { isDragging = true; startX = e.touches[0].clientX; });
+  carouselInner.addEventListener("touchend", e => { handleDragEnd(e.changedTouches[0].clientX - startX, destacados.length); });
+
+  updateCoverflow();
+}
+
+function handleDragEnd(diffX, length) {
+  if (!isDragging) return;
+  isDragging = false;
+  if (diffX > 50) indexCoverflow = (indexCoverflow - 1 + length) % length;
+  else if (diffX < -50) indexCoverflow = (indexCoverflow + 1) % length;
+  updateCoverflow();
+}
+
+function updateCoverflow() {
+  const items = document.querySelectorAll("#carouselDestacados .carousel-item");
+  const offset = 210; // separación lateral entre productos
+
+  items.forEach((item, i) => {
+    item.classList.remove("active", "prev", "next");
+    item.style.opacity = 0.3;
+    item.style.transform = "translateX(-50%) scale(0.8)";
+
+    if (i === indexCoverflow) {
+      item.classList.add("active");
+      item.style.opacity = 1;
+      item.style.transform = "translateX(-50%) scale(1)";
+    } else if (i === (indexCoverflow - 1 + items.length) % items.length) {
+      item.classList.add("prev");
+      item.style.opacity = 0.5;
+      item.style.transform = `translateX(calc(-50% - ${offset}px)) scale(0.8)`;
+    } else if (i === (indexCoverflow + 1) % items.length) {
+      item.classList.add("next");
+      item.style.opacity = 0.5;
+      item.style.transform = `translateX(calc(-50% + ${offset}px)) scale(0.8)`;
+    }
+  });
+
+  const indicators = document.querySelectorAll("#carouselDestacados .carousel-indicators button");
+  indicators.forEach((btn, i) => btn.classList.toggle("active", i === indexCoverflow));
+}
+
+
+// --- Capitalize ---
+function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+
+// --- Inicialización SPA ---
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const productos = await obtenerProductos();
     window.productosGlobales = productos;
-    // Llamamos router para renderizar la página actual
-    router();
+    router(); // renderiza la página actual y llama initPageFeatures
   } catch (err) {
     console.error("Error al obtener productos desde Airtable:", err);
   }
 });
-
-function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
