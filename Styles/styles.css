@@ -1,183 +1,36 @@
 main {
-    padding-top: 80px;
-    padding-bottom: 80px;
+  padding-top: 80px;
+  padding-bottom: 80px;
 }
 
 section {
-    display: none;
+  display: block;
 }
 
-section.active {
-    display: block;
-}
 
+/* PRODUCTOS */
 .categories .nav-link {
-    margin: 0 15px;
-    font-weight: 500;
-    color: rgb(133, 168, 232);
-    border-bottom: 2px solid transparent;
-    transition: all 0.3s ease;
-  }
+  margin: 0 15px;
+  font-weight: 500;
+  color: rgb(133, 168, 232);
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+}
 
 .categories .nav-link:hover {
-    color: rgb(17, 38, 77);
-    border-bottom: 2px solid rgb(31, 60, 112);
+  color: rgb(17, 38, 77);
+  border-bottom: 2px solid rgb(31, 60, 112);
 }
 
 .categories .nav-link.active {
-    color: rgb(17, 38, 77) ;
-    border-bottom: 2px solid rgb(31, 60, 112);
-    background-color: transparent ;
-}
-
-#productoModal img {
-  max-height: 560px;  
-  width: auto;        
-  display: block;
-  margin: 0 auto;     
-}
-
-.modal-dialog {
-  max-width: none;        
-  width: auto;           
-  min-width: 450px;       
-  display: flex;
-  justify-content: center; 
-  margin: 1.75rem auto;    
-}
-.modal-content {
-  display: inline-block;
-  width: auto; 
-}
-
-.modal-body {
-  padding: 0; 
-}
-
-.card {
-  margin: 0;
-}
-
-.card-img-top {
-  width: 100%; 
-  display: block;
-  border-radius: 0; }
-
-.product-card {
-  cursor: pointer;
-}
-
-.slider {
-  position: relative;
-  width: 300px;      
-  height: 500px;
-  perspective: 1000px;
-}
-
-.slider .card {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-  display: flex;
-  flex-direction: column;
-  justify-content: start;
-  align-items: center;
-  padding: 10px;
-  transition: transform 0.6s, filter 0.6s, opacity 0.6s;
-}
-
-.card.prev {
-  filter: blur(2px) brightness(0.85);
-  transform: scale(0.85) translateX(-180px) rotateY(30deg);
-  opacity: 0.6;
-  z-index: 5;
-}
-
-.card.active {
-  filter: none;
-  transform: scale(1) translateX(0) rotateY(0);
-  opacity: 1;
-  z-index: 10;
+  color: rgb(17, 38, 77);
+  border-bottom: 2px solid rgb(31, 60, 112);
+  background-color: transparent;
 }
 
 
-.card.next {
-  filter: blur(2px) brightness(0.85);
-  transform: scale(0.85) translateX(180px) rotateY(-30deg);
-  opacity: 0.6;
-  z-index: 5;
+/* CONTACTOS */
+.card:hover {
+  transform: translateY(-3px);
+  transition: transform 0.3s;
 }
-
-
-.card.inactive {
-  filter: blur(4px) brightness(0.8);
-  transform: scale(0.7) translateX(0) rotateY(0);
-  opacity: 0;
-  z-index: 0;
-}
-
-
-.controls {
-  position: absolute;
-  bottom: -60px;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-}
-
-.controls button {
-  background: #22124e;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 1rem;
-}
-.controls button span.material-icons {
-  font-size: 27px; 
-  vertical-align: middle;
-}
-
-
-#slider-container .card img {
-  height: 340px;
-  width: 100%;
-  object-fit: cover;
-  border-top-left-radius: 0.25rem;
-  border-top-right-radius: 0.25rem;
-}
-
-
-#slider-container .card-body {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start; 
-  align-items: center;         
-  text-align: center;          
-  padding: 10px;
-}
-
-
-#slider-container .card-title {
-  font-size: 1rem;     
-  font-weight: 600;
-   margin-bottom: 3px; 
-}
-
-
-#slider-container .card-text {
-  font-size: 0.85rem;   
-  margin-bottom: 5px;
-}
-
-
-#slider-container .card p.fw-bold {
-  font-size: 0.95rem;
-}
-
