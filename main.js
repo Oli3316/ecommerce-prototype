@@ -202,11 +202,19 @@ function renderProductos(productos, contenedor) {
           <p class="card-text">${producto.fields.Descripcion || ""}</p>
           <div class="mt-auto">
             <p class="fw-bold">$${producto.fields.Precio}</p>
-            <a href="#" class="btn btn-primary w-100">Agregar al carrito</a>
+            <a href="#" class="btn btn-primary w-100 btn-detalle">Ver detalle</a>
           </div>
         </div>
       </div>
     `;
+
+    // Boton Detalle
+     const btnDetalle = col.querySelector(".btn-detalle");
+      btnDetalle.addEventListener("click", (e) => {
+      e.preventDefault();
+      mostrarDetalleProducto(producto);
+      });
+
 
     contenedor.appendChild(col);
   });
@@ -308,3 +316,38 @@ document.addEventListener("DOMContentLoaded", async () => {
 //       });
 //   });
 // });
+
+// FUNCION MODAL (DETALLE PRODUCTO)
+async function mostrarDetalleProducto(producto) {
+  // Cargar modal si no está
+  if (!loadedModals["detalleProducto"]) {
+    const res = await fetch("modales/detalleProducto.html");
+    const html = await res.text();
+    document.body.insertAdjacentHTML("beforeend", html);
+    loadedModals["detalleProducto"] = true;
+  }
+
+  // Llenar datos del producto
+  document.getElementById("detalleNombre").textContent = producto.fields.Nombre;
+  document.getElementById("detalleDescripcion").textContent = producto.fields.Descripcion || "";
+  document.getElementById("detallePrecio").textContent = `$${producto.fields.Precio}`;
+  document.getElementById("detalleImagen").src = obtenerURLImagen(producto.fields.Imagen) || "https://via.placeholder.com/300x200";
+
+  // Botón agregar al carrito
+  const btn = document.getElementById("btnAgregarCarritoDetalle");
+  btn.replaceWith(btn.cloneNode(true)); // remover listeners anteriores
+  document.getElementById("btnAgregarCarritoDetalle").addEventListener("click", () => {
+    const metodoPago = document.getElementById("metodoPago").value;
+    showModal("confirmar", {
+      text: `¿Deseas agregar este producto al carrito con pago: ${metodoPago}?`,
+      onConfirm: () => {
+        showModal("exito", { text: "Producto agregado al carrito correctamente" });
+      }
+    });
+  });
+
+  // Mostrar modal
+  const modalEl = document.getElementById("modalDetalleProducto");
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+}
