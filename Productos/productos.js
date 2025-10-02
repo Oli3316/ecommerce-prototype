@@ -23,7 +23,7 @@ async function obtenerProductos() {
   });
 
   const data = await response.json();
-  console.log("🔎 Respuesta de Airtable:", data);
+  console.log("Respuesta de Airtable:", data);
 
   if (!data.records) {
     throw new Error(`No se encontraron records. Revisa BASE_ID (${BASE_ID}) o TABLE_NAME (${TABLE_NAME}).`);
