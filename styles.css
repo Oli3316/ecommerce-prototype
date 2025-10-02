@@ -4,5 +4,33 @@ main {
 }
 
 section {
-  display: block; 
+  display: block;
+}
+
+
+/* PRODUCTOS */
+.categories .nav-link {
+  margin: 0 15px;
+  font-weight: 500;
+  color: rgb(133, 168, 232);
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.categories .nav-link:hover {
+  color: rgb(17, 38, 77);
+  border-bottom: 2px solid rgb(31, 60, 112);
+}
+
+.categories .nav-link.active {
+  color: rgb(17, 38, 77);
+  border-bottom: 2px solid rgb(31, 60, 112);
+  background-color: transparent;
+}
+
+
+/* CONTACTOS */
+.card:hover {
+  transform: translateY(-3px);
+  transition: transform 0.3s;
 }

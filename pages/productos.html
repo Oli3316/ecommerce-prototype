@@ -1,18 +1,18 @@
 <section>
-  <h1 class="text-center mb-4">Nuestros Productos</h1>
-  <div class="row g-4">
-    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-      <div class="card shadow-sm h-100">
-        <img src="https://placehold.co/300x200" class="card-img-top" alt="Producto">
-        <div class="card-body d-flex flex-column">
-          <h5 class="card-title">Producto 1</h5>
-          <p class="card-text">Descripción breve del producto.</p>
-          <div class="mt-auto">
-            <p class="fw-bold">$100</p>
-            <a class="btn btn-primary w-100" id="btn-add">Agregar al carrito</a>
-          </div>
-        </div>
-      </div>
+  <!-- Sección Productos -->
+  <div class="container my-5">
+    <h1 class="text-center mb-4">Nuestros Productos</h1>
+
+    <!-- Filtro por categoría -->
+    <div class="mb-4 text-center">
+      <label for="filtroCategoria" class="form-label fw-bold me-2">Filtrar por categoría:</label>
+      <select id="filtroCategoria" class="form-select d-inline-block w-auto">
+        <option value="todas">Todas</option>
+      </select>
+    </div>
+
+    <div class="row g-4" id="productos-container">
+      <!-- Aquí se generarán las tarjetas dinámicamente -->
     </div>
   </div>
 </section>
