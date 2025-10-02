@@ -21,23 +21,34 @@ async function loadPage(page) {
     const html = await res.text();
     app.innerHTML = html;
 
-    const contenedor = document.getElementById("productos-container");
-    const selectCategoria = document.getElementById("filtroCategoria");
-
-    if (selectCategoria && contenedor && window.productosGlobales) {
-      // Poblar categorías en el select
-      cargarCategorias(window.productosGlobales, selectCategoria);
-
-      // Listener de cambio
-      selectCategoria.addEventListener("change", () => {
-        const categoria = selectCategoria.value;
-        const productosFiltrados = filtrarProductos(window.productosGlobales, categoria);
-        renderProductos(productosFiltrados, contenedor);
-      });
-    }
-
     const sec = app.querySelector("section");
     if (sec) sec.classList.add("active");
+
+    // 🚀 si estamos en la página de productos
+    if (page === "productos") {
+      const contenedor = document.getElementById("productos-container");
+      const selectCategoria = document.getElementById("filtroCategoria");
+
+      // Obtener productos desde Airtable (si no están en cache)
+      if (!window.productosGlobales) {
+        window.productosGlobales = await obtenerProductos();
+      }
+
+      // Render inicial con TODOS los productos
+      renderProductos(window.productosGlobales, contenedor);
+
+      // Poblar categorías
+      if (selectCategoria) {
+        cargarCategorias(window.productosGlobales, selectCategoria);
+
+        // Listener para filtrar
+        selectCategoria.addEventListener("change", () => {
+          const categoria = selectCategoria.value;
+          const productosFiltrados = filtrarProductos(window.productosGlobales, categoria);
+          renderProductos(productosFiltrados, contenedor);
+        });
+      }
+    }
   } catch (err) {
     app.innerHTML = `<h1>Error 404</h1><p>Página no encontrada</p>`;
   }
@@ -227,6 +238,15 @@ function renderProductos(productos, contenedor) {
 
 // Función para poblar el select de categorías
 function cargarCategorias(productos, selectCategoria) {
+  selectCategoria.innerHTML = ""; // limpiar antes de poblar
+
+  // Agregar opción por defecto: TODAS
+  const optionTodas = document.createElement("option");
+  optionTodas.value = "todas";
+  optionTodas.textContent = "Todas";
+  selectCategoria.appendChild(optionTodas);
+
+  // Agregar categorías reales
   const categorias = new Set();
   productos.forEach(p => {
     if (p.fields.Categoria) categorias.add(p.fields.Categoria.toLowerCase());
@@ -238,6 +258,9 @@ function cargarCategorias(productos, selectCategoria) {
     option.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
     selectCategoria.appendChild(option);
   });
+
+  // Dejar seleccionado "todas" al inicio
+  selectCategoria.value = "todas";
 }
 
 // Filtrar productos según categoría seleccionada
