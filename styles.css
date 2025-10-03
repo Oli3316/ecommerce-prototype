@@ -7,3 +7,133 @@ section {
   display: block;
 }
 
+/* 🎨 BASE */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #fdfcfb, #e2d1c3); /* fondo cálido degradado */
+  color: #1f2937;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5 {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* 🚀 NAVBAR ESTILO MODERNO */
+.navbar {
+  background: linear-gradient(90deg, #ff416c, #ff4b2b); /* 🔥 gradiente rojo/rosa */
+  padding: 1rem 1.2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #fff !important;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.nav-link {
+  color: #ffe4e6 !important;
+  margin: 0 10px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0%;
+  height: 2px;
+  background: #fff;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after, .nav-link.active::after {
+  width: 100%;
+}
+
+.nav-link.active, .nav-link:hover {
+  color: #fff !important;
+}
+
+/* 📦 CARDS DE PRODUCTOS */
+.card {
+  border: none;
+  border-radius: 15px;
+  background: white;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.card img {
+  height: 200px;
+  object-fit: cover;
+}
+
+.card-body {
+  padding: 1.2rem;
+}
+
+/* 🛒 BOTONES */
+.btn {
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 0.6rem;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: #ff416c;
+  border: none;
+}
+
+.btn-primary:hover {
+  background: #ff4b2b;
+  transform: scale(1.05);
+}
+
+/* 📩 FORMULARIO */
+form {
+  max-width: 600px;
+  margin: auto;
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+/* 📍 FOOTER */
+footer {
+  background: #111827;
+  color: #d1d5db;
+  font-size: 0.9rem;
+  padding: 1rem 0;
+  letter-spacing: 0.5px;
+  box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
+}
+
+footer p {
+  margin: 0;
+}
+
+/* 📱 RESPONSIVIDAD */
+@media (max-width: 768px) {
+  .navbar-nav {
+    text-align: center;
+  }
+  .card img {
+    height: 160px;
+  }
+}
