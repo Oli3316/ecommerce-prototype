@@ -22,6 +22,15 @@ async function loadPage(page) {
     const sec = app.querySelector("section");
     if (sec) sec.classList.add("active");
 
+    // 🚀 Productos destacados en la página de inicio
+    if (page === "inicio") {
+      if (!window.productosGlobales) {
+        window.productosGlobales = await obtenerProductos();
+      }
+      renderDestacados(window.productosGlobales);
+    }
+
+
     // 🚀 si estamos en la página de productos
     if (page === "productos") {
       const contenedor = document.getElementById("productos-container");
@@ -300,6 +309,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const contenedor = document.getElementById("productos-container");
     if (contenedor) renderProductos(productos, contenedor);
 
+    // Render de destacados (si existe contenedor en #inicio)
+    renderDestacados(productos);
+
     // Si el select existe, cargar categorías y agregar listener
     const selectCategoria = document.getElementById("filtroCategoria");
     if (selectCategoria) {
@@ -369,4 +381,44 @@ async function mostrarDetalleProducto(producto) {
   const modalEl = document.getElementById("modalDetalleProducto");
   const modal = new bootstrap.Modal(modalEl);
   modal.show();
+}
+
+function renderDestacados(productos) {
+  const destacadosContainer = document.getElementById("destacados-container");
+  if (!destacadosContainer) return;
+
+  // Filtrar los productos con Destacado = true
+  const destacados = productos.filter(p => p.fields.Destacado === true);
+
+  destacadosContainer.innerHTML = "";
+
+  destacados.forEach(producto => {
+    const imagenURL = obtenerURLImagen(producto.fields.Imagen) || "https://via.placeholder.com/300x200";
+
+    const col = document.createElement("div");
+    col.className = "col-12 col-sm-6 col-md-4 col-lg-3";
+
+    col.innerHTML = `
+      <div class="card shadow-sm h-100">
+        <img src="${imagenURL}" class="card-img-top" alt="${producto.fields.Nombre}">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">${producto.fields.Nombre}</h5>
+          <p class="card-text">${producto.fields.Descripcion || ""}</p>
+          <div class="mt-auto">
+            <p class="fw-bold">${formatearPrecio(producto.fields.Precio)}</p>
+            <a href="#" class="btn btn-outline-primary w-100 btn-detalle">Ver detalle</a>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Botón detalle (usa el mismo modal que productos normales)
+    const btnDetalle = col.querySelector(".btn-detalle");
+    btnDetalle.addEventListener("click", (e) => {
+      e.preventDefault();
+      mostrarDetalleProducto(producto);
+    });
+
+    destacadosContainer.appendChild(col);
+  });
 }
