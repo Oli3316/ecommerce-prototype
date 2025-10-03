@@ -9,9 +9,7 @@ const TABLE_NAME = "Products";
 const contenedor = document.getElementById("productos-container");
 const selectCategoria = document.getElementById("filtroCategoria");
 
-// (function(){
-//   emailjs.init("SiJdhKM8cxQrVxJ7H"); 
-// })();
+ (function(){ emailjs.init("SiJdhKM8cxQrVxJ7H"); })();
 
 
 async function loadPage(page) {
@@ -49,6 +47,28 @@ async function loadPage(page) {
         });
       }
     }
+    
+    // 🚀 si estamos en la página de contacto
+    if (page === "contacto") {
+  const form = document.querySelector("form");
+  if (form) {
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      emailjs.sendForm('service_1102u5y', 'template_7qigike', this)
+        .then(() => {
+          form.reset();
+          showToast("✅ Mensaje enviado correctamente");
+          setTimeout(() => {
+            window.location.hash = "#inicio"; 
+          }, 2000);
+
+        }, (err) => {
+          console.error("Error al enviar el mensaje:", err);
+          showToast("❌ Error al enviar el mensaje", true);
+        });
+    });
+  }
+}
   } catch (err) {
     app.innerHTML = `<h1>Error 404</h1><p>Página no encontrada</p>`;
   }
@@ -314,37 +334,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Error al obtener productos desde Airtable:", error);
   }
 });
-
-
-// CONTACTOS
-
-// (function(){
-//   emailjs.init("SiJdhKM8cxQrVxJ7H"); 
-// })();
-
-// document.addEventListener("DOMContentLoaded", function() {
-//   const form = document.querySelector("form");
-  
-//   form.addEventListener("submit", function(e) {
-//     e.preventDefault();
-
-//     emailjs.sendForm('service_1102u5y', 'template_7qigike', this)
-//       .then(() => {
-//         form.reset();
-//         showToast("✅ Mensaje enviado correctamente");
-
-       
-//         setTimeout(() => {
-//           window.location.href = "/Productos/productos.html";
-//         }, 2000);
-
-//       }, (err) => {
-//         console.error("Error al enviar el mensaje:", err);
-//         showToast("❌ Error al enviar el mensaje", true);
-//       });
-//   });
-// });
-
 
 
 // FUNCION MODAL (DETALLE PRODUCTO)
