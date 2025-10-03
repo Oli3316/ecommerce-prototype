@@ -9,7 +9,7 @@ const TABLE_NAME = "Products";
 const contenedor = document.getElementById("productos-container");
 const selectCategoria = document.getElementById("filtroCategoria");
 
- (function(){ emailjs.init("SiJdhKM8cxQrVxJ7H"); })();
+(function () { emailjs.init("SiJdhKM8cxQrVxJ7H"); })();
 
 
 async function loadPage(page) {
@@ -56,28 +56,33 @@ async function loadPage(page) {
         });
       }
     }
-    
+
     // 🚀 si estamos en la página de contacto
     if (page === "contacto") {
-  const form = document.querySelector("form");
-  if (form) {
-    form.addEventListener("submit", function(e) {
-      e.preventDefault();
-      emailjs.sendForm('service_1102u5y', 'template_7qigike', this)
-        .then(() => {
-          form.reset();
-          showToast("✅ Mensaje enviado correctamente");
-          setTimeout(() => {
-            window.location.hash = "#inicio"; 
-          }, 2000);
+      const form = document.querySelector("form");
+      if (form) {
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          emailjs.sendForm('service_1102u5y', 'template_7qigike', this)
+            .then(() => {
+              form.reset();
+              showToast("✅ Mensaje enviado correctamente");
+              setTimeout(() => {
+                window.location.hash = "#inicio";
+              }, 2000);
 
-        }, (err) => {
-          console.error("Error al enviar el mensaje:", err);
-          showToast("❌ Error al enviar el mensaje", true);
+            }, (err) => {
+              console.error("Error al enviar el mensaje:", err);
+              showToast("❌ Error al enviar el mensaje", true);
+            });
         });
-    });
-  }
-}
+      }
+    }
+
+    if (page === "carrito") {
+      const contenedorCarrito = document.getElementById("carrito-container");
+      renderCarrito(contenedorCarrito);
+    }
   } catch (err) {
     app.innerHTML = `<h1>Error 404</h1><p>Página no encontrada</p>`;
   }
@@ -85,7 +90,6 @@ async function loadPage(page) {
 
 async function showModal(name, options = {}) {
   try {
-    // si el modal ya está en el DOM, no hacemos fetch de nuevo
     if (!loadedModals[name]) {
       const res = await fetch(`modales/${name}.html`);
       if (!res.ok) throw new Error("No se pudo cargar el modal");
@@ -97,14 +101,24 @@ async function showModal(name, options = {}) {
     const modalEl = document.getElementById(`modal${capitalize(name)}`);
     if (!modalEl) throw new Error("No se encontró el modal en el DOM");
 
-    // inicializamos el modal de Bootstrap
     const modal = new bootstrap.Modal(modalEl);
 
-    // que hace si es un modal confirmar
+    // 👉 título dinámico
+    if (options.title) {
+      const titleEl = modalEl.querySelector(".modal-title");
+      if (titleEl) titleEl.textContent = options.title;
+    }
+
+    // 👉 mensaje dinámico
+    if (options.message) {
+      const bodyEl = modalEl.querySelector(".modal-body");
+      if (bodyEl) bodyEl.textContent = options.message;
+    }
+
+    // 👉 botón confirmar dinámico
     if (options.onConfirm) {
       const btnConfirm = modalEl.querySelector("#confirmarAccion");
       if (btnConfirm) {
-        // removemos listeners anteriores para no duplicar
         btnConfirm.replaceWith(btnConfirm.cloneNode(true));
         modalEl.querySelector("#confirmarAccion").addEventListener("click", () => {
           options.onConfirm();
@@ -138,36 +152,15 @@ function router() {
 window.addEventListener("hashchange", router);
 window.addEventListener("load", router);
 
-// showModal('error')
-
-app.addEventListener("click", (e) => {
-  // ACA DENTRO ESCUCHARIAMOS A LOS BOTONES
-  if (e.target && e.target.id === "btn-add") {
-    e.preventDefault();
-    showModal("confirmar", {
-      text: "¿Deseas agregar este producto al carrito?",
-      onConfirm: () => {
-        showModal("exito", { text: "Producto agregado al carrito correctamente" });
-      }
-    });
-  }
-
-    // if (e.target && e.target.id === "btn-remove") {
-    // e.preventDefault();
-    // }
-});
-
-
-
 function showToast(message, isError = false) {
   const toast = document.createElement("div");
   toast.innerHTML = message;
-  
+
   toast.style.position = "fixed";
   toast.style.top = "20px";
   toast.style.right = "20px";
-  toast.style.backgroundColor = "#ffffff"; 
-  toast.style.color = "#000000";           
+  toast.style.backgroundColor = "#ffffff";
+  toast.style.color = "#000000";
   toast.style.padding = "12px 20px";
   toast.style.borderRadius = "8px";
   toast.style.boxShadow = "0 4px 6px rgba(0,0,0,0.2)";
@@ -184,7 +177,7 @@ function showToast(message, isError = false) {
     toast.style.opacity = "1";
   });
 
- 
+
   setTimeout(() => {
     toast.style.opacity = "0";
     setTimeout(() => {
@@ -326,7 +319,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Formulario
     const form = document.querySelector("form");
     if (form) {
-      form.addEventListener("submit", function(e) {
+      form.addEventListener("submit", function (e) {
         e.preventDefault();
         emailjs.sendForm('service_1102u5y', 'template_7qigike', this)
           .then(() => {
@@ -341,6 +334,19 @@ document.addEventListener("DOMContentLoaded", async () => {
           });
       });
     }
+
+    document.getElementById("btnFinalizarPedido").addEventListener("click", () => {
+      const carrito = getCarrito();
+      const total = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
+      alert(`Pedido finalizado! Total: $${total}`);
+
+      // Vaciar carrito en localStorage
+      localStorage.removeItem("carrito"); // o localStorage.setItem("carrito", JSON.stringify([]));
+
+      // Volver a renderizar
+      renderCarrito(document.getElementById("carrito-container"));
+    });
+
 
   } catch (error) {
     console.error("Error al obtener productos desde Airtable:", error);
@@ -368,11 +374,14 @@ async function mostrarDetalleProducto(producto) {
   const btn = document.getElementById("btnAgregarCarritoDetalle");
   btn.replaceWith(btn.cloneNode(true)); // remover listeners anteriores
   document.getElementById("btnAgregarCarritoDetalle").addEventListener("click", () => {
+    console.log(producto)
     const metodoPago = document.getElementById("metodoPago").value;
     showModal("confirmar", {
-      text: `¿Deseas agregar este producto al carrito con pago: ${metodoPago}?`,
+      title: "Agregar producto",
+      message: "Está seguro de agregar el producto al carrito?",
       onConfirm: () => {
-        showModal("exito", { text: "Producto agregado al carrito correctamente" });
+        agregarAlCarrito(producto);
+        showModal("exito", { title: "Genial", message: "Producto agregado al carrito correctamente." });
       }
     });
   });
@@ -421,4 +430,115 @@ function renderDestacados(productos) {
 
     destacadosContainer.appendChild(col);
   });
+}
+
+
+// CARRITO
+
+// Obtener carrito desde localStorage
+function getCarrito() {
+  return JSON.parse(localStorage.getItem("carrito")) || [];
+}
+
+// Guardar carrito en localStorage
+function saveCarrito(carrito) {
+  localStorage.setItem("carrito", JSON.stringify(carrito));
+}
+
+// Agregar producto al carrito
+function agregarAlCarrito(producto) {
+  let carrito = getCarrito();
+  const id = producto.id;
+
+  // buscar si ya existe
+  const item = carrito.find(p => p.id === id);
+
+  if (item) {
+    item.cantidad += 1; // sumar cantidad
+  } else {
+    carrito.push({
+      id: producto.id,
+      nombre: producto.fields.Nombre,
+      precio: producto.fields.Precio,
+      imagen: obtenerURLImagen(producto.fields.Imagen),
+      cantidad: 1
+    });
+  }
+
+  saveCarrito(carrito);
+  return carrito;
+}
+
+// Actualizar cantidad (suma o resta)
+function actualizarCantidad(id, delta) {
+  let carrito = getCarrito();
+  const itemIndex = carrito.findIndex(p => p.id === id);
+
+  if (itemIndex > -1) {
+    carrito[itemIndex].cantidad += delta;
+
+    if (carrito[itemIndex].cantidad <= 0) {
+      carrito.splice(itemIndex, 1); // eliminar si llega a 0
+    }
+  }
+
+  saveCarrito(carrito);
+  return carrito;
+}
+
+function renderCarrito(contenedor) {
+  const carrito = getCarrito();
+  const footer = document.getElementById("carrito-footer");
+  contenedor.innerHTML = "";
+
+  if (carrito.length === 0) {
+    contenedor.innerHTML = `
+      <div class="text-center p-5">
+        <h5>Tu carrito está vacío 😢</h5>
+        <p>Agrega productos para verlos aquí.</p>
+      </div>
+    `;
+    // Ocultar footer
+    footer.style.display = "none";
+    return;
+  }
+
+  // Mostrar footer si hay productos
+  footer.style.display = "block";
+
+  carrito.forEach(item => {
+    const col = document.createElement("div");
+    col.className = "col-12 col-sm-6 col-md-4 col-lg-3";
+
+    col.innerHTML = `
+      <div class="card shadow-sm h-100">
+        <img src="${item.imagen}" class="card-img-top" alt="${item.nombre}">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">${item.nombre}</h5>
+          <p class="fw-bold">${formatearPrecio(item.precio)}</p>
+          <div class="d-flex justify-content-between align-items-center mt-auto">
+            <button class="btn btn-outline-secondary btn-restar">-</button>
+            <span class="mx-2 fw-bold">${item.cantidad}</span>
+            <button class="btn btn-outline-secondary btn-sumar">+</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    col.querySelector(".btn-sumar").addEventListener("click", () => {
+      actualizarCantidad(item.id, +1);
+      renderCarrito(contenedor);
+    });
+
+    col.querySelector(".btn-restar").addEventListener("click", () => {
+      actualizarCantidad(item.id, -1);
+      renderCarrito(contenedor);
+    });
+
+    contenedor.appendChild(col);
+  });
+
+  // Actualizar total
+  const total = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
+  document.getElementById("carrito-total").textContent = `$${total}`;
 }
