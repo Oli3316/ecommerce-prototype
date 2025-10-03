@@ -1,0 +1,45 @@
+<div class="modal fade" id="modalFinalizarPedido" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Finalizar Pedido</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formFinalizarPedido">
+          <div class="mb-3">
+            <label for="nombre" class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="nombre" required>
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" required>
+          </div>
+          <div class="mb-3">
+            <label for="telefono" class="form-label">Teléfono</label>
+            <input type="tel" class="form-control" id="telefono" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Método de entrega</label>
+            <div>
+              <input type="radio" id="retiro" name="entrega" value="retiro" checked>
+              <label for="retiro">Retiro en local</label>
+            </div>
+            <div>
+              <input type="radio" id="envio" name="entrega" value="envio">
+              <label for="envio">Envío a domicilio</label>
+            </div>
+          </div>
+
+          <div id="direccion-group" class="mb-3 d-none">
+            <label for="direccion" class="form-label">Dirección</label>
+            <input type="text" class="form-control" id="direccion">
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">Confirmar pedido</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

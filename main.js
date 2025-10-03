@@ -72,7 +72,6 @@ async function loadPage(page) {
               }, 2000);
 
             }, (err) => {
-              console.error("Error al enviar el mensaje:", err);
               showToast("❌ Error al enviar el mensaje", true);
             });
         });
@@ -197,14 +196,12 @@ function obtenerURLImagen(imagen) {
 // Función para obtener productos desde Airtable
 async function obtenerProductos() {
   const url = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}`;
-  console.log("Fetching desde:", url);
 
   const response = await fetch(url, {
     headers: { Authorization: `Bearer ${API_KEY}` }
   });
 
   const data = await response.json();
-  console.log("Respuesta de Airtable:", data);
 
   if (!data.records) {
     throw new Error(`No se encontraron records. Revisa BASE_ID (${BASE_ID}) o TABLE_NAME (${TABLE_NAME}).`);
@@ -331,18 +328,25 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     }
 
-    document.getElementById("btnFinalizarPedido").addEventListener("click", () => {
-      const carrito = getCarrito();
-      const total = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
-      alert(`Pedido finalizado! Total: $${total}`);
+    // document.getElementById("btnFinalizarPedido").addEventListener("click", () => {
+    //   const carrito = getCarrito();
+    //   const total = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
+    //   alert(`Pedido finalizado! Total: $${total}`);
 
-      // Vaciar carrito en localStorage
-      localStorage.removeItem("carrito"); // o localStorage.setItem("carrito", JSON.stringify([]));
+    //   // Vaciar carrito en localStorage
+    //   localStorage.removeItem("carrito"); // o localStorage.setItem("carrito", JSON.stringify([]));
 
-      // Volver a renderizar
-      renderCarrito(document.getElementById("carrito-container"));
-    });
+    //   // Volver a renderizar
+    //   renderCarrito(document.getElementById("carrito-container"));
+    // });
 
+    // document.getElementById("btnVaciarCarrito").addEventListener("click", () => {
+    //   // Vaciar carrito en localStorage
+    //   localStorage.setItem("carrito", JSON.stringify([]));
+
+    //   // Renderizar de nuevo sin recargar la página
+    //   renderCarrito(document.getElementById("carrito-container"));
+    // });
 
   } catch (error) {
     console.error("Error al obtener productos desde Airtable:", error);
@@ -370,7 +374,6 @@ async function mostrarDetalleProducto(producto) {
   const btn = document.getElementById("btnAgregarCarritoDetalle");
   btn.replaceWith(btn.cloneNode(true)); // remover listeners anteriores
   document.getElementById("btnAgregarCarritoDetalle").addEventListener("click", () => {
-    console.log(producto)
     const metodoPago = document.getElementById("metodoPago").value;
     showModal("confirmar", {
       title: "Agregar producto",
@@ -392,18 +395,18 @@ function renderDestacados(productos) {
   const destacadosContainer = document.getElementById("destacados-container");
   if (!destacadosContainer) return;
 
- // Filtrar los productos con Destacado = true
-const destacados = productos.filter(p => p.fields.Destacado === true);
+  // Filtrar los productos con Destacado = true
+  const destacados = productos.filter(p => p.fields.Destacado === true);
 
-destacadosContainer.innerHTML = "";
+  destacadosContainer.innerHTML = "";
 
-destacados.forEach(producto => {
-  const imagenURL = obtenerURLImagen(producto.fields.Imagen) || "https://via.placeholder.com/300x200";
+  destacados.forEach(producto => {
+    const imagenURL = obtenerURLImagen(producto.fields.Imagen) || "https://via.placeholder.com/300x200";
 
-  const col = document.createElement("div");
-  col.className = "col-12 col-sm-6 col-md-4 col-lg-3 mb-4";
+    const col = document.createElement("div");
+    col.className = "col-12 col-sm-6 col-md-4 col-lg-3 mb-4";
 
-  col.innerHTML = `
+    col.innerHTML = `
     <div class="card shadow-sm h-100">
       <img src="${imagenURL}" class="card-img-top" alt="${producto.fields.Nombre}">
       <div class="card-body d-flex flex-column">
@@ -417,15 +420,15 @@ destacados.forEach(producto => {
     </div>
   `;
 
-  // Botón detalle (usa el mismo modal que productos normales)
-  const btnDetalle = col.querySelector(".btn-detalle");
-  btnDetalle.addEventListener("click", (e) => {
-    e.preventDefault();
-    mostrarDetalleProducto(producto);
-  });
+    // Botón detalle (usa el mismo modal que productos normales)
+    const btnDetalle = col.querySelector(".btn-detalle");
+    btnDetalle.addEventListener("click", (e) => {
+      e.preventDefault();
+      mostrarDetalleProducto(producto);
+    });
 
-  destacadosContainer.appendChild(col);
-});
+    destacadosContainer.appendChild(col);
+  });
 }
 
 
@@ -521,6 +524,7 @@ function renderCarrito(contenedor) {
       </div>
     `;
 
+    // Eventos de cantidad
     col.querySelector(".btn-sumar").addEventListener("click", () => {
       actualizarCantidad(item.id, +1);
       renderCarrito(contenedor);
@@ -537,4 +541,76 @@ function renderCarrito(contenedor) {
   // Actualizar total
   const total = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
   document.getElementById("carrito-total").textContent = `$${total}`;
+
+  // 🔹 Reenganchar evento al botón Vaciar carrito
+  const btnVaciar = document.getElementById("btnVaciarCarrito");
+  if (btnVaciar) {
+    btnVaciar.onclick = () => {
+      localStorage.setItem("carrito", JSON.stringify([]));
+      renderCarrito(contenedor);
+    };
+  }
+
+  const btnFinalizar = document.getElementById("btnFinalizarPedido");
+  if (btnFinalizar) {
+    btnFinalizar.onclick = async () => {
+      await showModal("finalizarPedido");
+
+      const form = document.getElementById("formFinalizarPedido");
+      const direccionGroup = document.getElementById("direccion-group");
+
+      // Mostrar/ocultar dirección
+      document.querySelectorAll("input[name='entrega']").forEach((radio) => {
+        radio.addEventListener("change", (e) => {
+          if (e.target.value === "envio") {
+            direccionGroup.classList.remove("d-none");
+            direccionGroup.querySelector("input").setAttribute("required", "true");
+          } else {
+            direccionGroup.classList.add("d-none");
+            direccionGroup.querySelector("input").removeAttribute("required");
+          }
+        });
+      });
+
+      // Enviar formulario
+      form.onsubmit = (e) => {
+        e.preventDefault();
+
+        const pedido = {
+          nombre: document.getElementById("nombre").value,
+          email: document.getElementById("email").value,
+          telefono: document.getElementById("telefono").value,
+          entrega: document.querySelector("input[name='entrega']:checked").value,
+          direccion: document.getElementById("direccion").value || null,
+          carrito: getCarrito()
+        };
+
+        showModal('exito', { title: 'Pedido finalizado', message: 'Su pedido fue confirmado, en breve recibira un mail con su información.' });
+
+        // Vaciar carrito
+        localStorage.setItem("carrito", JSON.stringify([]));
+        renderCarrito(document.getElementById("carrito-container"));
+
+        // Cerrar modal
+        const modalEl = document.getElementById("modalFinalizarPedido");
+        bootstrap.Modal.getInstance(modalEl).hide();
+      };
+    };
+  }
+
+  document.addEventListener("click", (e) => {
+  if (e.target.id === "btnFinalizarPedido") {
+    const carrito = getCarrito();
+    const total = carrito.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
+    alert(`Pedido finalizado! Total: $${total}`);
+    localStorage.setItem("carrito", JSON.stringify([]));
+    renderCarrito(document.getElementById("carrito-container"));
+  }
+
+  if (e.target.id === "btnVaciarCarrito") {
+    localStorage.setItem("carrito", JSON.stringify([]));
+    renderCarrito(document.getElementById("carrito-container"));
+  }
+});
 }
+
